@@ -1,3 +1,24 @@
 <div id="fm">
   <fm-header></fm-header>
+  <div class="content">
+    <div class="container">
+      <div class="breadcrumb-wrap">
+        <fm-breadcrumb  [fmSeparator]="mySeparator">
+          <fm-breadcrumb-item>
+            全部
+          </fm-breadcrumb-item>
+          <fm-breadcrumb-item>
+            全部
+          </fm-breadcrumb-item>
+          <fm-breadcrumb-item>
+            全部
+          </fm-breadcrumb-item>
+        </fm-breadcrumb>
+        <ng-template #mySeparator>
+          <b>||</b>
+        </ng-template>
+
+      </div>
+    </div>
+  </div>
 </div>
