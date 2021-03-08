@@ -14,8 +14,8 @@
             全部
           </fm-breadcrumb-item>
         </fm-breadcrumb>
-        <ng-template #mySeparator>
-          <b>||</b>
+        <ng-template #mySeparator let-name let-my="my">
+          <b>||-{{name}}-{{my}}</b>
         </ng-template>
 
       </div>

@@ -10,7 +10,7 @@ import { Component, OnInit, ChangeDetectionStrategy, ViewEncapsulation, Template
 })
 export class BreadcrumbComponent implements OnInit {
 
-  @Input() fmSeparator: TemplateRef<any>;
+  @Input() fmSeparator: TemplateRef<any> | string = '>';
   constructor() { }
 
   ngOnInit(): void {

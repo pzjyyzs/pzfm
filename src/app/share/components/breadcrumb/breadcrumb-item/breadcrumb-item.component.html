@@ -3,10 +3,11 @@
     <ng-content></ng-content>
   </div>
   <div class="separator">
-    <ng-container [ngTemplateOutlet]="parent.fmSeparator || defSeparatorTpl"></ng-container>
+    <span *fmStrTplOutlet="parent.fmSeparator; context: myContext"> {{ parent.fmSeparator }}</span>
+    <!-- <ng-container [ngTemplateOutlet]="parent.fmSeparator || defSeparatorTpl"></ng-container>
     <ng-template #defSeparatorTpl>
       <span>&gt;</span>
-    </ng-template>
+    </ng-template> -->
   </div>
 
 

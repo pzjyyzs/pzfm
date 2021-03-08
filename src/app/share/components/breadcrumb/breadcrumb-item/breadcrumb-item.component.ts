@@ -9,6 +9,7 @@ import { BreadcrumbComponent } from '../breadcrumb.component';
 })
 export class BreadcrumbItemComponent implements OnInit {
 
+  myContext = { $implicit: 'World', my: 'svet' };
   constructor(@Optional() readonly parent: BreadcrumbComponent) { }
 
   ngOnInit(): void {
