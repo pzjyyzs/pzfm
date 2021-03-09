@@ -3,7 +3,7 @@
   <div class="content">
     <div class="container">
       <div class="breadcrumb-wrap">
-        <fm-breadcrumb  [fmSeparator]="mySeparator">
+        <fm-breadcrumb >
           <fm-breadcrumb-item>
             全部
           </fm-breadcrumb-item>
@@ -14,9 +14,6 @@
             全部
           </fm-breadcrumb-item>
         </fm-breadcrumb>
-        <ng-template #mySeparator let-name let-my="my">
-          <b>||-{{name}}-{{my}}</b>
-        </ng-template>
 
       </div>
     </div>
