@@ -3,7 +3,46 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from './../../../environments/environment';
-import { Base, Category } from '../types';
+import { Album, AlbumInfo, Anchor, Base, Category, MetaData, SubCategory, TracksInfo } from '../types';
+import { stringify } from 'qs';
+
+export interface CategoryInfo {
+  category: Category;
+  currentSubcategory: SubCategory;
+  subcategories: SubCategory[];
+  metadata: MetaData[];
+}
+
+export interface AlbumsInfo {
+  albums: Album[];
+  page: number;
+  pageSize: number;
+  total: number;
+  pageConfig: { h1title: string };
+}
+
+export interface AlbumArgs {
+  category: string;
+  subcategory: string;
+  meta: string;
+  sort: number;
+  page: number;
+  perPage: number;
+}
+
+export interface AlbumRes {
+  albumId: number;
+  mainInfo: AlbumInfo;
+  anchorInfo: Anchor;
+  tracksInfo: TracksInfo;
+}
+
+export interface AlbumTrackArgs {
+  albumId: string;
+  sort: number;
+  pageNum: number;
+  pageSize: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -20,5 +59,12 @@ export class AlbumService {
     return this.http
     .get(`${environment.baseUrl}${this.prefix}breadcrumb`, { params })
     .pipe(map((res: Base<{categories: Category[] }>) => res.data.categories));
+  }
+
+  detailCategoryPageInfo(args: Pick<AlbumArgs, 'category' | 'subcategory'>): Observable<CategoryInfo> {
+    const params = new HttpParams({ fromString: stringify(args)});
+    return this.http
+    .get(`${environment.baseUrl}${this.prefix}categories`, { params })
+    .pipe(map((res: Base<CategoryInfo>) => res.data));
   }
 }
