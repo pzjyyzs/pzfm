@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
+import { withLatestFrom } from 'rxjs/operators';
 import { CategoryService } from 'src/app/service/business/category.service';
 import { AlbumArgs, AlbumService, CategoryInfo } from 'src/app/services/apis/album.service';
 import { MetaValue, SubCategory } from './../../services/types';
@@ -29,21 +30,23 @@ export class AlbumsComponent implements OnInit {
     private router: Router,
     private categoryServe: CategoryService
   ) {
-    // 合并多个流，取最新值
-    combineLatest(
+
+    this.route.paramMap.pipe(withLatestFrom(this.categoryServe.getCategory()))
+    .subscribe(([paramMap, category]) => {
+      const pinyin = paramMap.get('pinyin');
+      if (pinyin !== category) {
+        this.categoryServe.setCategory(pinyin);
+      }
+      this.searchParams.category = pinyin;
+      this.searchParams.subcategory = '';
+      this.categoryServe.setSubCategory([]);
+      this.updatePageData();
+    });
+      // combineLatest合并多个流，取最新值
+    /* combineLatest(
       this.categoryServe.getCategory(),
       this.route.paramMap
-    ).subscribe(([category, paramMap]) => {
-      const pinyin = paramMap.get('pinyin');
-      if (pinyin === category) {
-        this.searchParams.category = pinyin;
-        this.searchParams.subcategory = '';
-        this.updatePageData();
-      } else {
-        this.categoryServe.setCategory(pinyin);
-        this.router.navigateByUrl('/albums/' + pinyin);
-      }
-    });
+    ) */
    }
 
   ngOnInit(): void {
@@ -53,6 +56,7 @@ export class AlbumsComponent implements OnInit {
   changeSubCategory(subCategory?: SubCategory): void {
     if (this.searchParams.subcategory !== subCategory?.code) {
       this.searchParams.subcategory = subCategory?.code || '';
+      this.categoryServe.setSubCategory([subCategory.displayValue]);
       this.updatePageData();
     }
   }

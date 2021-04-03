@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CategoryService } from './service/business/category.service';
 import { AlbumService } from './services/apis/album.service';
 import { Category } from './services/types';
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'fm-root',
@@ -13,8 +14,8 @@ import { Category } from './services/types';
 export class AppComponent implements OnInit {
   title = 'pzfm';
   currentCategory: Category;
-  categories: Category[];
-  subcategory: string[];
+  categories: Category[] = [];
+  subcategory: string[] = [];
   categoryPinyin = '';
   constructor(private albumServer: AlbumService,
               private categoryServe: CategoryService,
@@ -29,17 +30,20 @@ export class AppComponent implements OnInit {
   }
 
   private init(): void {
-    this.categoryServe.getCategory().subscribe(category => {
+    combineLatest(
+      this.categoryServe.getCategory(),
+      this.categoryServe.getSubCategory()
+    ).subscribe(([category, subcategory]) => {
       if (category !== this.categoryPinyin) {
         this.categoryPinyin = category;
-        if (this.categories?.length) {
+        if (this.categories.length) {
           this.setCurrentCategory();
-        } else {
-          this.getCategories();
         }
       }
+      this.subcategory = subcategory;
     });
 
+    this.getCategories();
   }
 
   private getCategories(): void {
@@ -52,7 +56,7 @@ export class AppComponent implements OnInit {
 
   changeCategory(category: Category): void {
     if (this.currentCategory.id !== category.id) {
-      this.currentCategory = category;
+      // this.currentCategory = category;
       this.categoryServe.setCategory(category.pinyin);
       this.router.navigateByUrl('/albums/' + category.pinyin);
     }

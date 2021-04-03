@@ -18,9 +18,9 @@
               </div>
             </div>
           </fm-breadcrumb-item>
-          <!--<ng-container *ngFor="let item of subcategory">
-            <xm-breadcrumb-item *ngIf="item">{{ item }}</xm-breadcrumb-item>
-          </ng-container>-->
+          <ng-container *ngIf="subcategory.length">
+            <xm-breadcrumb-item  *ngFor="let item of subcategory">{{ item }}</xm-breadcrumb-item>
+          </ng-container>
         </fm-breadcrumb>
       </div>
       <router-outlet></router-outlet>
