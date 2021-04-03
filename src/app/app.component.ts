@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { CategoryService } from './service/business/category.service';
 import { AlbumService } from './services/apis/album.service';
 import { Category } from './services/types';
 
@@ -13,7 +15,12 @@ export class AppComponent implements OnInit {
   currentCategory: Category;
   categories: Category[];
   subcategory: string[];
-  constructor(private albumServer: AlbumService,private cdr: ChangeDetectorRef) {
+  categoryPinyin = '';
+  constructor(private albumServer: AlbumService,
+              private categoryServe: CategoryService,
+              private cdr: ChangeDetectorRef,
+              private router: Router
+    ) {
 
   }
 
@@ -22,16 +29,36 @@ export class AppComponent implements OnInit {
   }
 
   private init(): void {
-    this.albumServer.categories().subscribe(categories => {
-     this.categories = categories;
-     this.currentCategory = this.categories[0];
-     this.cdr.markForCheck();
+    this.categoryServe.getCategory().subscribe(category => {
+      if (category !== this.categoryPinyin) {
+        this.categoryPinyin = category;
+        if (this.categories?.length) {
+          this.setCurrentCategory();
+        } else {
+          this.getCategories();
+        }
+      }
     });
+
+  }
+
+  private getCategories(): void {
+    this.albumServer.categories().subscribe(categories => {
+      this.categories = categories;
+      this.setCurrentCategory();
+      this.cdr.markForCheck();
+     });
   }
 
   changeCategory(category: Category): void {
     if (this.currentCategory.id !== category.id) {
       this.currentCategory = category;
+      this.categoryServe.setCategory(category.pinyin);
+      this.router.navigateByUrl('/albums/' + category.pinyin);
     }
+  }
+
+  setCurrentCategory(): void {
+    this.currentCategory = this.categories.find(item => item.pinyin === this.categoryPinyin);
   }
 }
