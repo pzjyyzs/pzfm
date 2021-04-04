@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
   }
 
   private init(): void {
+    // combineLatest合并多个流，取最新值
     combineLatest(
       this.categoryServe.getCategory(),
       this.categoryServe.getSubCategory()
@@ -48,6 +49,7 @@ export class AppComponent implements OnInit {
 
   private getCategories(): void {
     this.albumServer.categories().subscribe(categories => {
+      console.log('categories', categories);
       this.categories = categories;
       this.setCurrentCategory();
       this.cdr.markForCheck();
@@ -64,5 +66,6 @@ export class AppComponent implements OnInit {
 
   setCurrentCategory(): void {
     this.currentCategory = this.categories.find(item => item.pinyin === this.categoryPinyin);
+    console.log('current', this.currentCategory);
   }
 }

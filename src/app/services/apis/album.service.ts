@@ -53,7 +53,6 @@ export class AlbumService {
   constructor(private http: HttpClient) { }
 
   // 一级分类列表
-
   categories(categoryId = 3): Observable<Category[]> {
     const params = new HttpParams().set('categoryId', categoryId.toString());
     return this.http
@@ -61,10 +60,11 @@ export class AlbumService {
     .pipe(map((res: Base<{categories: Category[] }>) => res.data.categories));
   }
 
+  // 二级分类
   detailCategoryPageInfo(args: Pick<AlbumArgs, 'category' | 'subcategory'>): Observable<CategoryInfo> {
-    const params = new HttpParams({ fromString: stringify(args)});
+  /*   const params = new HttpParams({ fromString: stringify(args)}); */
     return this.http
-    .get(`${environment.baseUrl}${this.prefix}categories`, { params })
+    .get(`${environment.baseUrl}${this.prefix}categories`, { params: args })
     .pipe(map((res: Base<CategoryInfo>) => res.data));
   }
 }
