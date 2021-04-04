@@ -1,8 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
 import { CategoryService } from 'src/app/service/business/category.service';
-import { AlbumArgs, AlbumService, CategoryInfo } from 'src/app/services/apis/album.service';
+import { AlbumArgs, AlbumService, AlbumsInfo, CategoryInfo } from 'src/app/services/apis/album.service';
 import { MetaData, MetaValue, SubCategory } from './../../services/types';
 interface CheckedMeta {
   metaRowId: number;
@@ -27,6 +28,8 @@ export class AlbumsComponent implements OnInit {
   };
   categoryInfo: CategoryInfo;
   checkedMetas: CheckedMeta[] = [];
+  albumsInfo: AlbumsInfo;
+  sorts = ['综合排序', '最近更新', '播放最多'];
   constructor(
     private albumServe: AlbumService,
     private cdr: ChangeDetectorRef,
@@ -35,6 +38,9 @@ export class AlbumsComponent implements OnInit {
     private categoryServe: CategoryService
   ) {
 
+   }
+
+  ngOnInit(): void {
     this.route.paramMap.pipe(withLatestFrom(this.categoryServe.getCategory()))
     .subscribe(([paramMap, category]) => {
       const pinyin = paramMap.get('pinyin');
@@ -44,26 +50,26 @@ export class AlbumsComponent implements OnInit {
       this.searchParams.category = pinyin;
       this.searchParams.subcategory = '';
       this.categoryServe.setSubCategory([]);
+      this.unCheckMeta('clear');
       this.updatePageData();
     });
-   }
-
-  ngOnInit(): void {
-    this.updatePageData();
   }
 
   changeSubCategory(subCategory?: SubCategory): void {
     if (this.searchParams.subcategory !== subCategory?.code) {
       this.searchParams.subcategory = subCategory?.code || '';
       this.categoryServe.setSubCategory([subCategory?.displayValue]);
+      this.unCheckMeta('clear');
       this.updatePageData();
     }
   }
 
   private updatePageData(): void {
-    this.albumServe.detailCategoryPageInfo(this.searchParams)
-    .subscribe(categoryInfo => {
-      console.log('category', categoryInfo);
+    forkJoin([
+      this.albumServe.albums(this.searchParams),
+      this.albumServe.detailCategoryPageInfo(this.searchParams)
+    ]).subscribe(([albumsInfo, categoryInfo]) => {
+      this.albumsInfo = albumsInfo;
       this.categoryInfo = categoryInfo;
       this.cdr.markForCheck();
     });
@@ -76,14 +82,19 @@ export class AlbumsComponent implements OnInit {
       metaId: meta.id,
       metaName: meta.displayName
     });
+    this.searchParams.meta = this.getMetaParams();
+    this.updateAlbums();
   }
 
   unCheckMeta(meta: CheckedMeta | 'clear'): void {
     if (meta === 'clear') {
       this.checkedMetas = [];
+      this.searchParams.meta = this.getMetaParams();
     } else {
       this.checkedMetas = this.checkedMetas.filter(item =>  item.metaRowId !== meta.metaRowId && item.metaId !== meta.metaId);
+      this.searchParams.meta = this.getMetaParams();
     }
+    // this.updateAlbums();
   }
 
   showMetaRow(name: string): boolean {
@@ -93,6 +104,30 @@ export class AlbumsComponent implements OnInit {
     return true;
   }
 
+  getMetaParams(): string {
+    let result = '';
+    if (this.checkedMetas.length) {
+      result = this.checkedMetas.reduce((str, item) => str + item.metaRowId + '_' + item.metaId + '-', '');
+    }
+    return result.slice(0, -1);
+  }
+
+  changeSort(index: number): void {
+    if (this.searchParams.sort !== index) {
+      this.searchParams.sort = index;
+      this.updatePageData();
+    }
+  }
+
   trackByCategory(index: number, item: SubCategory): string { return item.code; }
+
   trackByMetas(index: number, item: MetaValue): number { return item.id; }
+
+  updateAlbums(): void {
+    this.albumServe.albums(this.searchParams)
+    .subscribe(albumsInfo => {
+      this.albumsInfo = albumsInfo;
+      this.cdr.markForCheck();
+    })
+  }
 }

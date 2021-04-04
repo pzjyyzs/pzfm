@@ -4,7 +4,8 @@ import { map } from 'rxjs/operators';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from './../../../environments/environment';
 import { Album, AlbumInfo, Anchor, Base, Category, MetaData, SubCategory, TracksInfo } from '../types';
-import { stringify } from 'qs';
+import { ParsedUrlQueryInput, stringify } from 'querystring';
+
 
 export interface CategoryInfo {
   category: Category;
@@ -66,5 +67,12 @@ export class AlbumService {
     return this.http
     .get(`${environment.baseUrl}${this.prefix}categories`, { params: args })
     .pipe(map((res: Base<CategoryInfo>) => res.data));
+  }
+
+  // 专辑列表
+  albums(args: AlbumArgs): Observable<AlbumsInfo> {
+    const params = new HttpParams({ fromString: stringify(args as unknown as ParsedUrlQueryInput)});
+    return this.http.get(`${environment.baseUrl}${this.prefix}albums`, { params })
+    .pipe(map((res: Base<AlbumsInfo>) => res.data));
   }
 }
