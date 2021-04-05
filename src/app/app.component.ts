@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { CategoryService } from './service/business/category.service';
+import { CategoryService } from './services/business/category.service';
 import { AlbumService } from './services/apis/album.service';
 import { Category } from './services/types';
 import { combineLatest } from 'rxjs';
@@ -57,8 +57,6 @@ export class AppComponent implements OnInit {
 
   changeCategory(category: Category): void {
     if (this.currentCategory.id !== category.id) {
-      // this.currentCategory = category;
-      this.categoryServe.setCategory(category.pinyin);
       this.router.navigateByUrl('/albums/' + category.pinyin);
     }
   }

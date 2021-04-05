@@ -2,9 +2,11 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
-import { CategoryService } from 'src/app/service/business/category.service';
+import { CategoryService } from 'src/app/services/business/category.service';
 import { AlbumArgs, AlbumService, AlbumsInfo, CategoryInfo } from 'src/app/services/apis/album.service';
-import { MetaData, MetaValue, SubCategory } from './../../services/types';
+import { Album, MetaData, MetaValue, SubCategory } from './../../services/types';
+import { WindowService } from 'src/app/services/tools/window.service';
+import { storageKeys } from 'src/app/config';
 interface CheckedMeta {
   metaRowId: number;
   metaRowName: string;
@@ -35,42 +37,63 @@ export class AlbumsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private router: Router,
-    private categoryServe: CategoryService
+    private categoryServe: CategoryService,
+    private winServe: WindowService
   ) {
 
    }
 
-  ngOnInit(): void {
-    this.route.paramMap.pipe(withLatestFrom(this.categoryServe.getCategory()))
-    .subscribe(([paramMap, category]) => {
+   ngOnInit(): void {
+     this.route.paramMap.pipe(withLatestFrom(this.categoryServe.getCategory()))
+     .subscribe(([paramMap, category]) => {
       const pinyin = paramMap.get('pinyin');
+      this.searchParams.category = pinyin;
+      let needSetState = false;
       if (pinyin !== category) {
         this.categoryServe.setCategory(pinyin);
+        this.clearSubCategory();
+        this.unCheckMeta('clear');
+      } else {
+        const cacheSubCategory = this.winServe.getStorage(storageKeys.subCategoryCode);
+        const cacheMetas = this.winServe.getStorage(storageKeys.metas);
+        if (cacheSubCategory) {
+          needSetState = true;
+          this.searchParams.subcategory = cacheSubCategory;
+        }
+        if (cacheMetas) {
+          needSetState = true;
+          this.searchParams.meta = cacheMetas;
+        }
       }
-      this.searchParams.category = pinyin;
-      this.searchParams.subcategory = '';
-      this.categoryServe.setSubCategory([]);
-      this.unCheckMeta('clear');
-      this.updatePageData();
+
+      this.updatePageData(needSetState);
     });
   }
 
   changeSubCategory(subCategory?: SubCategory): void {
-    if (this.searchParams.subcategory !== subCategory?.code) {
-      this.searchParams.subcategory = subCategory?.code || '';
-      this.categoryServe.setSubCategory([subCategory?.displayValue]);
-      this.unCheckMeta('clear');
-      this.updatePageData();
+    if (subCategory) {
+      if (this.searchParams.subcategory !== subCategory.code) {
+        this.searchParams.subcategory = subCategory.code;
+        this.categoryServe.setSubCategory([subCategory.displayValue]);
+        this.winServe.setStorage(storageKeys.subCategoryCode, this.searchParams.subcategory);
+      }
+    } else {
+      this.clearSubCategory();
     }
+    this.unCheckMeta('clear');
+    this.updatePageData();
   }
 
-  private updatePageData(): void {
+  private updatePageData(needSetState = false): void {
     forkJoin([
       this.albumServe.albums(this.searchParams),
       this.albumServe.detailCategoryPageInfo(this.searchParams)
     ]).subscribe(([albumsInfo, categoryInfo]) => {
       this.albumsInfo = albumsInfo;
       this.categoryInfo = categoryInfo;
+      if (needSetState) {
+        this.setStatus(categoryInfo);
+      }
       this.cdr.markForCheck();
     });
   }
@@ -83,16 +106,19 @@ export class AlbumsComponent implements OnInit {
       metaName: meta.displayName
     });
     this.searchParams.meta = this.getMetaParams();
+    this.winServe.setStorage(storageKeys.metas, this.searchParams.meta);
     this.updateAlbums();
   }
 
   unCheckMeta(meta: CheckedMeta | 'clear'): void {
     if (meta === 'clear') {
       this.checkedMetas = [];
-      this.searchParams.meta = this.getMetaParams();
+      this.searchParams.meta = '';
+      this.winServe.removeStorage(storageKeys.metas);
     } else {
       this.checkedMetas = this.checkedMetas.filter(item =>  item.metaRowId !== meta.metaRowId && item.metaId !== meta.metaId);
       this.searchParams.meta = this.getMetaParams();
+      this.winServe.setStorage(storageKeys.metas, this.searchParams.meta);
     }
     // this.updateAlbums();
   }
@@ -123,11 +149,43 @@ export class AlbumsComponent implements OnInit {
 
   trackByMetas(index: number, item: MetaValue): number { return item.id; }
 
+  trackByAlbums(index: number, item: Album): number { return  item.albumId; }
+
   updateAlbums(): void {
     this.albumServe.albums(this.searchParams)
     .subscribe(albumsInfo => {
       this.albumsInfo = albumsInfo;
       this.cdr.markForCheck();
-    })
+    });
+  }
+
+  private clearSubCategory(): void {
+    this.searchParams.subcategory = '';
+    this.categoryServe.setSubCategory([]);
+    this.winServe.removeStorage(storageKeys.subCategoryCode);
+  }
+
+  private setStatus({metadata, subcategories}: CategoryInfo): void {
+    const subCategory = subcategories.find(item => item.code === this.searchParams.subcategory);
+    if (subCategory) {
+      this.categoryServe.setSubCategory([subCategory.displayValue]);
+    }
+    if (this.searchParams.meta) {
+      const metasMap = this.searchParams.meta
+      .split('-')
+      .map(item => item.split('_'));
+      metasMap.forEach(meta => {
+        const targetRow = metadata.find(row => row.id === Number(meta[0]));
+        const { id: metaRowId, name, metaValues } = targetRow || metadata[0];
+        const targetMeta = metaValues.find(item => item.id === Number(meta[1]));
+        const { id, displayName } = targetMeta || metaValues[0];
+        this.checkedMetas.push({
+          metaRowId,
+          metaRowName: name,
+          metaId: id,
+          metaName: displayName
+        });
+      });
+    }
   }
 }
