@@ -1,5 +1,9 @@
 
 <div class="main-content">
+  <div>
+    tag:
+    <fm-tag fmColor="orange"></fm-tag>
+  </div>
   <div class="categories">
     <ul>
       <li
@@ -32,11 +36,11 @@
       <b class="title">已筛选</b>
       <ul class="tabs">
         <li
-          (click)="unCheckMeta(item)"
-          class="tag"
+          class="tag checked"
           *ngFor="let item of checkedMetas">
-          <span class="label-title">{{item.metaRowName}}</span> |
-          <span>{{item.metaName}}</span>
+          <span class="label-title">{{item.metaRowName}}</span>
+          <!-- <span>{{item.metaName}}</span> -->
+          <fm-tag [fmClosable]="true" (closed)="unCheckMeta(item)">{{item.metaName}}</fm-tag>
         </li>
       </ul>
       <a class="clear" (click)="unCheckMeta('clear')">清除全部</a>
@@ -70,7 +74,8 @@
         </div>
         <div class="abstract">
           <p class="txt title ellipsis">
-            <span *ngIf="album.isFinished === 2" class="tag">完本</span>
+            <fm-tag *ngIf="album.isFinished === 2" fmColor="green" class="tag">完本</fm-tag>
+            <!-- <span *ngIf="album.isFinished === 2" class="tag">完本</span> -->
             <span>{{ album.title }}</span>
           </p>
           <p class="txt author"><span>{{ album.anchorName }}</span></p>

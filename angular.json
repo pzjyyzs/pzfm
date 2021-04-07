@@ -52,7 +52,11 @@
             "styles": [
               "src/assets/styles/index.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "lodash",
+              "querystring"
+            ]
           },
           "configurations": {
             "production": {
