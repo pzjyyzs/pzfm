@@ -1,9 +1,5 @@
 
 <div class="main-content">
-  <div>
-    tag:
-    <fm-tag fmColor="orange"></fm-tag>
-  </div>
   <div class="categories">
     <ul>
       <li
@@ -39,7 +35,6 @@
           class="tag checked"
           *ngFor="let item of checkedMetas">
           <span class="label-title">{{item.metaRowName}}</span>
-          <!-- <span>{{item.metaName}}</span> -->
           <fm-tag [fmClosable]="true" (closed)="unCheckMeta(item)">{{item.metaName}}</fm-tag>
         </li>
       </ul>
@@ -53,8 +48,8 @@
       </div>
       <ul class="sort">
         <li
-          [class.checked]="i === searchParams.sort"
-          *ngFor="let item of sorts; index as i"
+        *ngFor="let item of sorts; index as i"
+        [class.checked]="i === searchParams.sort"
           (click)="changeSort(i)">
           {{item}}
         </li>
@@ -67,7 +62,6 @@
           <img class="thumbnail" [src]="album.coverPath + '!strip=1&quality=7&magick=webp&op_type=3&columns=290&rows=290'" [alt]="[album.title]">
           <img class="icon-play" src="../../../assets/images/icon-play-cover.png" />
           <p class="listen-count">
-            <!-- <i fmIcon class="icon iconfont icon-headset"></i> -->
             <i fmIcon="headset" class="icon"></i>
             <span>{{ album.playCount }}万</span>
           </p>
@@ -75,12 +69,14 @@
         <div class="abstract">
           <p class="txt title ellipsis">
             <fm-tag *ngIf="album.isFinished === 2" fmColor="green" class="tag">完本</fm-tag>
-            <!-- <span *ngIf="album.isFinished === 2" class="tag">完本</span> -->
             <span>{{ album.title }}</span>
           </p>
           <p class="txt author"><span>{{ album.anchorName }}</span></p>
         </div>
       </div>
     </div>
+  </div>
+  <div class="page-wrap">
+    <fm-pagination></fm-pagination>
   </div>
 </div>

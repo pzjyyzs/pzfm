@@ -1,0 +1,26 @@
+<div class="fm-page-wrap">
+  <ul class="fm-pages">
+    <li
+      class="fm-page"
+      *ngFor="let item of listOfPageBtns"
+      [class.disabled]="item.disabled"
+      [class.checked]="item.num === pageNum"
+    >
+    <ng-container [ngSwitch]="item.type">
+      <a *ngSwitchCase="'page'">{{ item.num }}</a>
+      <ng-container *ngSwitchDefault>
+        <a [ngSwitch]="item.type">
+          <i *ngSwitchCase="'prev'" fmIcon="previewleft" class="icon"></i>
+          <i *ngSwitchCase="'next'" fmIcon="previewright" class="icon"></i>
+          <i *ngSwitchDefault fmIcon="more" class="icon"></i>
+        </a>
+      </ng-container>
+
+    </ng-container>
+    </li>
+  </ul>
+  <div class="fm-page-navigate">
+    <input type="number" class="fm-input" />
+    <button>跳转</button>
+  </div>
+</div>

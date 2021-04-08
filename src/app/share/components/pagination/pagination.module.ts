@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TagComponent } from './tag.component';
+import { PaginationComponent } from './pagination.component';
 import { DirectivesModule } from './../../directives/directives.module';
 
 
 
 @NgModule({
-  declarations: [TagComponent],
+  declarations: [PaginationComponent],
   imports: [
     CommonModule,
     DirectivesModule
   ],
-  exports: [TagComponent]
+  exports: [PaginationComponent]
 })
-export class TagModule { }
+export class PaginationModule { }
