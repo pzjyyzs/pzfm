@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule, Optional, SkipSelf } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { HeaderComponent } from './layouts/header/header.component';
 import { PagesModule } from './pages/pages.module';
@@ -12,6 +13,7 @@ import { BreadcrumbModule } from './share/components/breadcrumb/breadcrumb.modul
   declarations: [HeaderComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
     BreadcrumbModule,
     PagesModule,
