@@ -2,7 +2,7 @@ import { Directive, ElementRef, HostBinding, Input, OnChanges, Renderer2, Simple
 import { IconType } from './types';
 
 @Directive({
-  selector: '[fmIcon]'
+  selector: 'i[fmIcon]'
 })
 export class IconDirective implements OnChanges {
   @HostBinding('class.iconfont') readonly hostCls = true;

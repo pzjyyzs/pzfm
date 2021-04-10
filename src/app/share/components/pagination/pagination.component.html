@@ -22,6 +22,6 @@
   </ul>
   <div class="fm-page-navigate">
     <input #to type="number" (keyup.enter)="inputVal(+to.value)" class="fm-input" [min]="1" [max]="lastNum" />
-    <button (click)="inputVal(+to.value)">跳转</button>
+    <button fmBtn (click)="inputVal(+to.value)">跳转</button>
   </div>
 </div>
