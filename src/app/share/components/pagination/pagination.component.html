@@ -5,6 +5,7 @@
       *ngFor="let item of listOfPageBtns"
       [class.disabled]="item.disabled"
       [class.checked]="item.num === pageNum"
+      (click)="pageClick(item)"
     >
     <ng-container [ngSwitch]="item.type">
       <a *ngSwitchCase="'page'">{{ item.num }}</a>
@@ -20,7 +21,7 @@
     </li>
   </ul>
   <div class="fm-page-navigate">
-    <input type="number" class="fm-input" />
-    <button>跳转</button>
+    <input #to type="number" (keyup.enter)="inputVal(+to.value)" class="fm-input" [min]="1" [max]="lastNum" />
+    <button (click)="inputVal(+to.value)">跳转</button>
   </div>
 </div>

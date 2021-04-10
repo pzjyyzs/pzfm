@@ -32,6 +32,7 @@ export class AlbumsComponent implements OnInit {
   checkedMetas: CheckedMeta[] = [];
   albumsInfo: AlbumsInfo;
   sorts = ['综合排序', '最近更新', '播放最多'];
+  total = 0;
   constructor(
     private albumServe: AlbumService,
     private cdr: ChangeDetectorRef,
@@ -91,6 +92,7 @@ export class AlbumsComponent implements OnInit {
     ]).subscribe(([albumsInfo, categoryInfo]) => {
       this.albumsInfo = albumsInfo;
       this.categoryInfo = categoryInfo;
+      this.total = albumsInfo.total;
       if (needSetState) {
         this.setStatus(categoryInfo);
       }
@@ -155,8 +157,16 @@ export class AlbumsComponent implements OnInit {
     this.albumServe.albums(this.searchParams)
     .subscribe(albumsInfo => {
       this.albumsInfo = albumsInfo;
+      this.total = albumsInfo.total;
       this.cdr.markForCheck();
     });
+  }
+
+  changePage(newPageNum: number): void {
+    if (this.searchParams.page !== newPageNum) {
+      this.searchParams.page = newPageNum;
+      this.updatePageData();
+    }
   }
 
   private clearSubCategory(): void {

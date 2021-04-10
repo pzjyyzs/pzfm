@@ -77,6 +77,12 @@
     </div>
   </div>
   <div class="page-wrap">
-    <fm-pagination></fm-pagination>
+    <fm-pagination
+      [pageNum]="searchParams.page"
+      [pageSize]="searchParams.perPage"
+      [total]="total"
+      (changed)="changePage($event)"
+    >
+    </fm-pagination>
   </div>
 </div>
