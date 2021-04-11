@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from './../../../environments/environment';
-import { Album, AlbumInfo, Anchor, Base, Category, MetaData, SubCategory, TracksInfo } from '../types';
+import { Album, AlbumInfo, Anchor, Base, Category, MetaData, RelateAlbum, SubCategory, TracksInfo } from '../types';
 import { ParsedUrlQueryInput, stringify } from 'querystring';
 
 
@@ -74,5 +74,25 @@ export class AlbumService {
     const params = new HttpParams({ fromString: stringify(args as unknown as ParsedUrlQueryInput)});
     return this.http.get(`${environment.baseUrl}${this.prefix}albums`, { params })
     .pipe(map((res: Base<AlbumsInfo>) => res.data));
+  }
+
+  // 专辑详情
+  album(albumId: string): Observable<AlbumRes> {
+    const params = new HttpParams().set('albumId', albumId);
+    return this.http.get(`${environment.baseUrl}${this.prefix}album`, { params })
+    .pipe(map((res: Base<AlbumRes>) => res.data));
+  }
+
+  // 评分
+  albumScore(albumId: string): Observable<number> {
+    return this.http.get(`${environment.baseUrl}${this.prefix}album-score/${albumId}`)
+    .pipe(map((res: Base<{ albumScore: number }>) => res.data.albumScore || 0));
+  }
+
+  // 相关专辑
+  relateAlbums(id: string): Observable<RelateAlbum[]> {
+    const params = new HttpParams().set('id', id);
+    return this.http.get(`${environment.baseUrl}${this.prefix}album-relate`, { params })
+    .pipe(map((res: Base<{ hotWordAlbums: RelateAlbum[]}>) => res.data.hotWordAlbums));
   }
 }
