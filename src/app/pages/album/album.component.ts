@@ -6,8 +6,13 @@ import { forkJoin } from 'rxjs';
 import { CategoryService } from 'src/app/services/business/category.service';
 import { AlbumInfo, Anchor, RelateAlbum, Track } from './../../services/types';
 import { AlbumTrackArgs } from './../../services/apis/album.service';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { IconType } from 'src/app/share/directives/icon/types';
 
+interface MoreState {
+  full: boolean;
+  label: string;
+  icon: IconType;
+}
 @Component({
   selector: 'fm-album',
   templateUrl: './album.component.html',
@@ -28,6 +33,12 @@ export class AlbumComponent implements OnInit {
     pageNum: 1,
     pageSize: 30
   };
+  moreState: MoreState = {
+    full: false,
+    label: '显示全部',
+    icon: 'arrow-down-line'
+  }
+  articleHeight: number;
   constructor(
     private route: ActivatedRoute,
     private albumServe: AlbumService,
@@ -37,7 +48,20 @@ export class AlbumComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.trackParams.albumId = this.route.snapshot.paramMap.get('albumId');
+    this.route.paramMap.subscribe(paramMap => {
+      this.trackParams.albumId = paramMap.get('albumId');
+      this.initPageData();
+    });
+
+  }
+
+  toggleMore(): void {
+    this.moreState.full = !this.moreState.full;
+    this.moreState.label = this.moreState.full ? '收起' : '显示全部';
+    this.moreState.icon = this.moreState.icon ? 'arrow-up-line' : 'arrow-down-line';
+  }
+
+  private initPageData(): void {
     forkJoin([
       this.albumServe.album(this.trackParams.albumId),
       this.albumServe.albumScore(this.trackParams.albumId),
@@ -53,5 +77,4 @@ export class AlbumComponent implements OnInit {
       this.cdr.markForCheck();
     });
   }
-
 }

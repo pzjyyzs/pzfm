@@ -34,11 +34,17 @@
       </div>
     </div>
     <div class="intro">
-      <article [innerHTML]="albumInfo.detailRichIntro | safeContent"></article>
-      <div class="more-arrow">
-        <div class="blur"></div>
-        <span>显示全部</span>
-        <i fmIcon="arrow-down-line" class="icon"></i>
+      <article fmToggleMore="360"
+        (initTrueHeight)="articleHeight = $event"
+        [isFull]="moreState.full"
+        [content]="albumInfo.detailRichIntro"
+        [innerHTML]="albumInfo.detailRichIntro | safeContent"
+        *ngIf="articleHeight > 360">
+      </article>
+      <div class="more-arrow" (click)="toggleMore()">
+        <div class="blur" [hidden]="moreState.full"></div>
+        <span>{{ moreState.label }}</span>
+        <i [fmIcon]="moreState.icon" class="icon"></i>
       </div>
     </div>
   </div>
@@ -75,7 +81,9 @@
         </div>
         <div class="card-body">
           <div class="albums">
-            <div class="album-item" *ngFor="let item of anchor.anchorAlbumList" [routerLink]="'/album/' + item.albumId">
+            <div class="album-item"
+            *ngFor="let item of anchor.anchorAlbumList"
+            [routerLink]="'../' + item.albumId">
               <div class="thumbnail">
                 <img [src]="item.cover" [alt]="item.albumTitle">
               </div>
@@ -97,7 +105,9 @@
       </div>
       <div class="card-body">
         <div class="albums">
-          <div class="album-item" *ngFor="let item of relateAlbums" [routerLink]="'/album/' + item.id">
+          <div class="album-item"
+          *ngFor="let item of relateAlbums"
+          [routerLink]="'../' + item.id">
             <div class="thumbnail">
               <img [src]="'//imagev2.xmcdn.com/' + item.coverPath" [alt]="item.title">
             </div>
